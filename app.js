@@ -3,16 +3,23 @@ new Vue ({
     data: {
         playerHP: 100,
         monsterHP: 100,
-        gameRunning: false
+        gameRunning: false,
+        turns: []
     },
     methods: {
         startGame: function() {
             this.gameRunning = true;
             this.playerHP = 100;
             this.monsterHP = 100;
+            this.turns = [];
         },
         attack: function() {
-            this.monsterHP -= this.calculateDamage(2, 10);
+            var damage = this.calculateDamage(2, 10);
+            this.monsterHP -= damage;
+            this.turns.unshift({
+                isPlayerTurn: true,
+                info: 'Player damages monster for ' + damage
+            });
             if (this.checkResult()) {
                 return;
             }
@@ -20,7 +27,13 @@ new Vue ({
             this.monsterAttack();
         },
         specialAttack: function() {
-            this.monsterHP -= this.calculateDamage(8, 25);
+            var damage = this.calculateDamage(8, 25);
+            this.monsterHP -= damage;
+            this.turns.unshift({
+                isPlayerTurn: true,
+                info: 'Player special attack hits for ' + damage
+            });
+
             if (this.checkResult()) {
                 return;
             }
@@ -34,14 +47,23 @@ new Vue ({
             else {
                 this.playerHP = 100;
             }
+            this.turns.unshift({
+                isPlayerTurn: true,
+                info: 'Player healed'
+            });
             this.monsterAttack();
         },
         giveUp: function() {
             this.gameRunning = false;
         },
         monsterAttack: function() {
-            this.playerHP -= this.calculateDamage(5, 15);
+            var damage = this.calculateDamage(5, 15);
+            this.playerHP -= damage;
             this.checkResult();
+            this.turns.unshift({
+                isPlayerTurn: false,
+                info: 'Monster damages player  for ' + damage
+            });
         },
         calculateDamage: function(minDamage, maxDamage) {
             return Math.max(Math.floor(Math.random() * maxDamage) + 1, minDamage);
